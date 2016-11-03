@@ -1,0 +1,6 @@
+.gradle/
+.idea/
+build/
+swagger-test.iml
+swagger-test.ipr
+swagger-test.iws
