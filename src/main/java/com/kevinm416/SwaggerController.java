@@ -2,7 +2,6 @@ package com.kevinm416;
 
 import javax.inject.Inject;
 
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +28,7 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
 
@@ -57,34 +57,40 @@ public class SwaggerController {
             method = RequestMethod.POST)
     @ResponseBody
     public StringResponse getStuff() {
-        return new StringResponse(Optional.of(DateTimeZone.UTC), Optional.of("abc"), "def");
+        return new StringResponse(Optional.of(new RevisionIdentifier<Integer>("abc")));
     }
 
     public static class StringResponse {
-        private final Optional<DateTimeZone> dtz;
-        private final Optional<String> optionalString;
-        private final String nonOptionalString;
+        private final Optional<RevisionIdentifier<Integer>> wrapped;
+        private final String compare;
 
         @JsonCreator
         public StringResponse(
-                @JsonProperty("dtz") Optional<DateTimeZone> dtz,
-                @JsonProperty("optionalString") Optional<String> optionalString,
-                @JsonProperty("nonOptionalString") String nonOptionalString) {
-            this.dtz = dtz;
-            this.optionalString = optionalString;
-            this.nonOptionalString = nonOptionalString;
+                @JsonProperty("wrapped") Optional<RevisionIdentifier<Integer>> wrapped) {
+            this.wrapped = wrapped;
+            this.compare = "abc";
         }
 
-        public Optional<DateTimeZone> getDtz() {
-            return dtz;
+        public Optional<RevisionIdentifier<Integer>> getWrapped() {
+            return wrapped;
         }
 
-        public Optional<String> getOptionalString() {
-            return optionalString;
+        public String getCompare() {
+            return compare;
+        }
+    }
+
+    public static class RevisionIdentifier<T> {
+        private final String revisionId;
+
+        @JsonCreator
+        public RevisionIdentifier(String revisionId) {
+            this.revisionId = revisionId;
         }
 
-        public String getNonOptionalString() {
-            return nonOptionalString;
+        @JsonValue
+        public String getRevisionId() {
+            return revisionId;
         }
     }
 
@@ -131,16 +137,13 @@ public class SwaggerController {
                     null,
                     null);
             TypeResolver resolver = new TypeResolver();
-            ResolvedType dtzType = resolver.resolve(DateTimeZone.class);
-            ResolvedType optionalDtzType = resolver.resolve(Optional.class, DateTimeZone.class);
             ResolvedType stringType = resolver.resolve(String.class);
+            ResolvedType optionalStringWrapper = resolver.resolve(Optional.class, RevisionIdentifier.class);
             return new Docket(DocumentationType.SWAGGER_2)
                     .apiInfo(apiInfo)
                     .genericModelSubstitutes(Optional.class)
-                    .directModelSubstitute(DateTimeZone.class, String.class)
                     .alternateTypeRules(
-                            new AlternateTypeRule(dtzType, stringType),
-                            new AlternateTypeRule(optionalDtzType, stringType));
+                            new AlternateTypeRule(optionalStringWrapper, stringType));
         }
 
     }
