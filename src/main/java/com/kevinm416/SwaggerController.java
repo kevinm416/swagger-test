@@ -24,15 +24,11 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
 
-import springfox.documentation.schema.AlternateTypeRule;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
@@ -57,40 +53,27 @@ public class SwaggerController {
             method = RequestMethod.POST)
     @ResponseBody
     public StringResponse getStuff() {
-        return new StringResponse(Optional.of(new RevisionIdentifier<Integer>("abc")));
+        return new StringResponse("abc", Optional.of("def"));
     }
 
     public static class StringResponse {
-        private final Optional<RevisionIdentifier<Integer>> wrapped;
-        private final String compare;
+        private final String field1;
+        private final Optional<String> field2;
 
         @JsonCreator
         public StringResponse(
-                @JsonProperty("wrapped") Optional<RevisionIdentifier<Integer>> wrapped) {
-            this.wrapped = wrapped;
-            this.compare = "abc";
+                @JsonProperty("field1") final String field1,
+                @JsonProperty("field2") final Optional<String> field2) {
+            this.field1 = field1;
+            this.field2 = field2;
         }
 
-        public Optional<RevisionIdentifier<Integer>> getWrapped() {
-            return wrapped;
+        public String getField1() {
+            return field1;
         }
 
-        public String getCompare() {
-            return compare;
-        }
-    }
-
-    public static class RevisionIdentifier<T> {
-        private final String revisionId;
-
-        @JsonCreator
-        public RevisionIdentifier(String revisionId) {
-            this.revisionId = revisionId;
-        }
-
-        @JsonValue
-        public String getRevisionId() {
-            return revisionId;
+        public Optional<String> getField2() {
+            return field2;
         }
     }
 
@@ -136,14 +119,9 @@ public class SwaggerController {
                     contact,
                     null,
                     null);
-            TypeResolver resolver = new TypeResolver();
-            ResolvedType stringType = resolver.resolve(String.class);
-            ResolvedType optionalStringWrapper = resolver.resolve(Optional.class, RevisionIdentifier.class);
             return new Docket(DocumentationType.SWAGGER_2)
                     .apiInfo(apiInfo)
-                    .genericModelSubstitutes(Optional.class)
-                    .alternateTypeRules(
-                            new AlternateTypeRule(optionalStringWrapper, stringType));
+                    .genericModelSubstitutes(Optional.class);
         }
 
     }
