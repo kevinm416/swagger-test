@@ -24,10 +24,9 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
+import com.kevinm416.package1.MyClass;
 
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
@@ -49,32 +48,19 @@ public class SwaggerController {
     private WebApplicationContext applicationContext;
 
     @RequestMapping(
-            value = "/getStuff",
+            value = "/package1",
             method = RequestMethod.POST)
     @ResponseBody
-    public StringResponse getStuff() {
-        return new StringResponse("abc", Optional.of("def"));
+    public MyClass package1() {
+        return new MyClass("abc");
     }
 
-    public static class StringResponse {
-        private final String field1;
-        private final Optional<String> field2;
-
-        @JsonCreator
-        public StringResponse(
-                @JsonProperty("field1") final String field1,
-                @JsonProperty("field2") final Optional<String> field2) {
-            this.field1 = field1;
-            this.field2 = field2;
-        }
-
-        public String getField1() {
-            return field1;
-        }
-
-        public Optional<String> getField2() {
-            return field2;
-        }
+    @RequestMapping(
+            value = "/package2",
+            method = RequestMethod.POST)
+    @ResponseBody
+    public com.kevinm416.package2.MyClass package2() {
+        return new com.kevinm416.package2.MyClass(123);
     }
 
     @Test
