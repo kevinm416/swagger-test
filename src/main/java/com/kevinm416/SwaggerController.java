@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,7 +27,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
-import com.kevinm416.package1.MyClass;
 
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
@@ -48,19 +48,11 @@ public class SwaggerController {
     private WebApplicationContext applicationContext;
 
     @RequestMapping(
-            value = "/package1",
+            value = "/endpoint",
             method = RequestMethod.POST)
     @ResponseBody
-    public MyClass package1() {
-        return new MyClass("abc");
-    }
-
-    @RequestMapping(
-            value = "/package2",
-            method = RequestMethod.POST)
-    @ResponseBody
-    public com.kevinm416.package2.MyClass package2() {
-        return new com.kevinm416.package2.MyClass(123);
+    public String package1(@RequestBody MyClass req) {
+        return "abc";
     }
 
     @Test
